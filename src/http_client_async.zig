@@ -2861,6 +2861,10 @@ fn fail(this: *HTTPClient, err: anyerror) void {
     if (this.signals.aborted != null) {
         _ = socket_async_http_abort_tracker.swapRemove(this.async_http_id);
     }
+
+    this.state.reset(this.allocator);
+    this.proxy_tunneling = false;
+
     this.state.request_stage = .fail;
     this.state.response_stage = .fail;
     this.state.fail = err;
@@ -2868,9 +2872,6 @@ fn fail(this: *HTTPClient, err: anyerror) void {
 
     const callback = this.result_callback;
     const result = this.toResult();
-    this.state.reset(this.allocator);
-    this.proxy_tunneling = false;
-
     callback.run(result);
 }
 
